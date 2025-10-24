@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <style>
+        .container {
+            width: calc(100% - 40px);
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+            background: #f7f7f7;
+        }
+        .box {
+            background: #ffffff;
+            margin: 0 auto;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 550px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.07);
+        }
+        .button {
+            display: inline-block;
+            margin-top: 25px;
+            padding: 12px 25px;
+            background-color: #ff3c00;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            text-decoration: none;
+            border-radius: 6px;
+        }
+        p {
+            text-align: left;
+        }
+        img {
+            width: 150px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="box">
+        <img src="cid:{{ logo_cid }}" alt="Videoflix Logo">
+
+        <p>Dear {{ user_name }},</p>
+
+        <p>
+            Thank you for registering with Videoflix.
+            To complete your registration and verify your email address, please click the link below:
+        </p>
+
+        <a href="{{ activation_link }}" class="button">Activate account</a>
+
+        <p style="margin-top: 30px;">
+            If you did not create an account with us, please disregard this email.<br/><br/>
+            Best regards,<br/><br>
+            <b>Your Videoflix Team</b>
+        </p>
+    </div>
+</div>
+</body>
+</html>
