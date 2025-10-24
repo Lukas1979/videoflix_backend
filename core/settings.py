@@ -31,6 +31,7 @@ SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+# Security & Cross-Domain Configuration (from .env)
 ALLOWED_HOSTS = [host.strip() for host in os.getenv("ALLOWED_HOSTS", "localhost").split(",")]
 CORS_ALLOW_CREDENTIALS = os.getenv("CORS_ALLOW_CREDENTIALS", "True") == "True"
 CORS_ALLOWED_ORIGINS = [origin.strip() for origin in os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000").split(",")]
@@ -140,13 +141,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # ------------- my settings -------------
 
-from email.utils import formataddr
-
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'lukasz-szymczak.ch'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'mail@lukasz-szymczak.ch'
-DEFAULT_FROM_EMAIL = formataddr(("Videoflix No-Reply", "noreply@lukasz-szymczak.ch"))
-
-EMAIL_HOST_PASSWORD = 'k4f1@pkh8rxG8oNOw'
+# Email / SMTP Configuration
+EMAIL_BACKEND = os.getenv("EMAIL_BACKEND", "django.core.mail.backends.smtp.EmailBackend")
+EMAIL_HOST = os.getenv("EMAIL_HOST", "localhost")
+EMAIL_PORT = int(os.getenv("EMAIL_PORT", 587))
+EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "True") == "True"
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "Videoflix No-Reply <noreply@localhost>")

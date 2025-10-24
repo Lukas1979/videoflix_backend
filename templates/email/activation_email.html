@@ -6,6 +6,7 @@
         .container {
             width: calc(100% - 40px);
             font-family: Arial, sans-serif;
+            font-size: 15px;
             text-align: center;
             padding: 20px;
             background: #f7f7f7;
@@ -20,14 +21,14 @@
         }
         .button {
             display: inline-block;
-            margin-top: 25px;
-            padding: 12px 25px;
-            background-color: #ff3c00;
-            color: white;
+            margin: 0.75em 0;
+            padding: 0.75em 1.5em;
+            background-color: #2f3dde;
+            color: #ffffff !important;
             font-size: 16px;
             font-weight: bold;
             text-decoration: none;
-            border-radius: 6px;
+            border-radius: 30px;
         }
         p {
             text-align: left;
@@ -38,24 +39,27 @@
         }
     </style>
 </head>
+
 <body>
 <div class="container">
     <div class="box">
         <img src="cid:{{ logo_cid }}" alt="Videoflix Logo">
 
-        <p>Dear {{ user_name }},</p>
+        <p>Dear <span style="color: #2f3dde;">{{ user_name }}</span>,</p>
 
         <p>
-            Thank you for registering with Videoflix.
+            Thank you for registering with <span style="color: #2f3dde;">Videoflix.</span>
             To complete your registration and verify your email address, please click the link below:
         </p>
 
-        <a href="{{ activation_link }}" class="button">Activate account</a>
+        <div style="text-align:left">
+            <a href="{{ activation_link }}" class="button">Activate account</a>
+        </div>
 
-        <p style="margin-top: 30px;">
+        <p>
             If you did not create an account with us, please disregard this email.<br/><br/>
             Best regards,<br/><br>
-            <b>Your Videoflix Team</b>
+            Your Videoflix Team
         </p>
     </div>
 </div>
