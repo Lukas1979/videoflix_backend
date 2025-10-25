@@ -9,8 +9,13 @@ class CustomUserAdmin(BaseUserAdmin):
     """
     The admin interface for your User model.
     """
+
+    def activated(self, obj):
+        return obj.is_active
+    activated.boolean = True
+    activated.short_description = 'Activated'
     
-    list_display = ('id', 'email', 'username', 'is_staff')
+    list_display = ('id', 'email', 'username', 'activated', 'is_staff')
     ordering = ('id',)
     fieldsets = (
         (None, {'fields': ('username', 'email', 'password')}),

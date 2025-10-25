@@ -1,17 +1,14 @@
-import os
-
 from django.core.mail import send_mail, EmailMultiAlternatives
 from django.template.loader import render_to_string
 from email.mime.image import MIMEImage
 
 
-def send_activation_email(user_email, user_name):
+def send_activation_email(user_email, user_name, activation_link):
     """
     After successful registration, a confirmation email will be sent to the user.
     """
     
     subject = "Confirm your email"
-    activation_link = os.getenv("ACTIVATE_ACCOUNT_LINK")
 
     html_content = render_to_string("email/activation_email.html", {
         "user_name": user_name, "activation_link": activation_link, "logo_cid": "logo",
