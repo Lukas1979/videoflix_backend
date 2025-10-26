@@ -13,12 +13,13 @@ RESET_PASSWORD_EMAIL = {
 }
 
 
-def send_activation_email(user_email, user_name, activation_link, activation_or_reset):
+def send_activation_email(user_email, user_name, activation_link, email_type):
     """
     After successful registration, a confirmation email will be sent to the user.
     """
     
-    subject, template = _is_activation_or_reset(activation_or_reset)
+    email_cfg = {"ACTIVATION_EMAIL": ACTIVATION_EMAIL, "RESET_PASSWORD_EMAIL": RESET_PASSWORD_EMAIL}.get(email_type)
+    subject, template = email_cfg["subject"], email_cfg["template"]
 
     html_content = render_to_string(template, {
         "user_name": user_name, "activation_link": activation_link, "logo_cid": "logo",
@@ -27,17 +28,6 @@ def send_activation_email(user_email, user_name, activation_link, activation_or_
     msg.attach_alternative(html_content, "text/html")
 
     _send_email(msg, user_email)
-
-
-def _is_activation_or_reset(activation_or_reset):
-    if activation_or_reset == "activation":
-        subject = ACTIVATION_EMAIL["subject"]
-        template = ACTIVATION_EMAIL["template"]
-    else:
-        subject = RESET_PASSWORD_EMAIL["subject"]
-        template = RESET_PASSWORD_EMAIL["template"]
-
-    return subject, template
 
 
 def _send_email(msg, user_email):

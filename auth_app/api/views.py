@@ -40,7 +40,7 @@ class RegisterView(APIView):
             user = serializer.save()
 
             link, link_backend = self._create_activation_link(user)
-            send_activation_email(user_email=user.email, user_name=USER_NAME, activation_link=link, activation_or_reset="activation")
+            send_activation_email(user_email=user.email, user_name=USER_NAME, activation_link=link, email_type="ACTIVATION_EMAIL")
 
             return Response({"user": {"id": user.id, "email": user.email}, "activation_backend": link_backend}, status=status.HTTP_201_CREATED)
         else:
@@ -53,7 +53,6 @@ class RegisterView(APIView):
 
         base_url = os.getenv("ACTIVATE_ACCOUNT_LINK")
         activation_link = f"{base_url}?uid={uidb64}&token={token}"
-
         link_backend = f"{BACKEND_URL}/api/activate/{uidb64}/{token}/"
 
         return activation_link, link_backend
@@ -183,6 +182,7 @@ class PasswordResetView(APIView):
         email = request.data.get("email")
         if not email:
             return Response({"detail": "Email is required."}, status=status.HTTP_400_BAD_REQUEST)
+        
         try:
             user = User.objects.get(email=email)
         except User.DoesNotExist:
@@ -197,9 +197,42 @@ class PasswordResetView(APIView):
 
         base_url = os.getenv("PASSWORD_RESET_LINK")
         password_reset_link = f"{base_url}?uid={uidb64}&token={token}"
-
         link_backend = f"{BACKEND_URL}/api/password_confirm/{uidb64}/{token}/"
 
-        send_activation_email(user_email=user.email, user_name="", activation_link=password_reset_link, activation_or_reset="reset")
+        send_activation_email(user_email=user.email, user_name="", activation_link=password_reset_link, email_type="RESET_PASSWORD_EMAIL")
 
         return Response({"detail": PASSWORD_RESET_200_RESPONSE_TEXT, "password_reset_backend": link_backend}, status=status.HTTP_200_OK)
+
+
+class PasswordConfirmView(APIView):
+    """
+    POST /api/password_confirm/<uidb64>/<token>/
+    Confirm the password change with the token included in the email.
+    """
+
+    permission_classes = [AllowAny]
+
+    def post(self, request, uidb64, token):
+        try:
+            uid = urlsafe_base64_decode(uidb64).decode()
+            user = User.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            return Response({"error": "Password confirm failed."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        token_generator = PasswordResetTokenGenerator()
+        if not token_generator.check_token(user, token):
+            return Response({"error": "Password confirm failed."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        return self._save_new_password(request, user)
+    
+    def _save_new_password(self, request, user):
+        new_password = request.data.get("new_password")
+        confirm_password = request.data.get("confirm_password")
+
+        if not new_password or not confirm_password or new_password != confirm_password:
+            return Response({"error": "Password confirm failed."}, status=status.HTTP_400_BAD_REQUEST)
+
+        user.set_password(new_password)
+        user.save()
+
+        return Response({"detail": "Your Password has been successfully reset."})
