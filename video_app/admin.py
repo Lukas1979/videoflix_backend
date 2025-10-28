@@ -6,6 +6,10 @@ from .models import Video
 
 @admin.register(Video)
 class VideoAdmin(admin.ModelAdmin):
+    """
+    Display configuration of the video model in the Django admin.
+    """
+    
     list_display = ('id', 'title', 'category', 'created_at', 'thumbnail_preview')
     list_filter = ('category', 'created_at')
     search_fields = ('title', 'description', 'category')

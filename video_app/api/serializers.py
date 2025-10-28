@@ -4,6 +4,10 @@ from video_app.models import Video
 
 
 class VideoSerializer(serializers.ModelSerializer):
+    """
+    Converts video model data into JSON so it can be delivered via the API.
+    """
+    
     thumbnail_url = serializers.SerializerMethodField()
 
     class Meta:
@@ -12,6 +16,7 @@ class VideoSerializer(serializers.ModelSerializer):
 
     def get_thumbnail_url(self, obj):
         request = self.context.get('request')
+        
         if obj.thumbnail:
             return request.build_absolute_uri(obj.thumbnail.url)
         return None
