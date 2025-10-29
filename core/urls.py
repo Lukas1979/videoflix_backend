@@ -9,6 +9,7 @@ from auth_app.api.views import RegisterView, ActivateAccountView, LoginView, Log
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('django-rq/', include('django_rq.urls')),
 
     path('api/register/', RegisterView.as_view(), name='register'),
     path('api/activate/<uidb64>/<token>/', ActivateAccountView.as_view(), name='activate'),
