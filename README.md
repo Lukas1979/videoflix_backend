@@ -1,6 +1,26 @@
 # 🎬 Videoflix Backend
 
-Backend for **Videoflix**, a Django REST Framework-based project designed to handle video streaming, authentication, and background processing via Redis queues.
+Videoflix Backend is the server-side component of the Videoflix application — a video streaming platform built with Django REST Framework.
+It provides all core functionalities such as user authentication, video management, and API endpoints that power the Videoflix Frontend
+.
+
+This backend was designed for Developer Akademie students to deepen their understanding of backend development, Docker-based deployment, and integration between Django APIs and a vanilla JavaScript frontend.
+
+It serves as the main data and API layer for the frontend, managing:
+
+User registration, login, and authentication (JWT)
+
+Video uploads, metadata, and streaming endpoints
+
+Background tasks via Redis & RQ
+
+Static and media file handling
+
+Database management with PostgreSQL
+
+Together with the frontend project, this repository demonstrates a full-stack video streaming solution using modern web technologies and clean development practices.
+
+Frontend Repository: [Coderr/ Frontend Project](https://github.com/Developer-Akademie-Backendkurs/project.Videoflix)
 
 This repository contains everything needed to start the backend using **Docker**, including configuration for PostgreSQL and Redis.
 
@@ -72,10 +92,4 @@ Run Django migrations and static file collection
 
 Automatically create a Django superuser (from .env)
 
-Launch the Gunicorn server at http://localhost:8000
-
-⚙️ Available Services
-Service	            Description	             Port	       Container Name
-web	        Django backend (Gunicorn)	     8000	      videoflix_backend
-db	         PostgreSQL 17 database	         5432	      videoflix_database
-redis	    Redis cache / task queue	     6379	       videoflix_redis
+Launch the Gunicorn server at http://127.0.0.1:8000
