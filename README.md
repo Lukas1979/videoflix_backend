@@ -20,7 +20,7 @@ Database management with PostgreSQL
 
 Together with the frontend project, this repository demonstrates a full-stack video streaming solution using modern web technologies and clean development practices.
 
-Frontend Repository: [Coderr/ Frontend Project](https://github.com/Developer-Akademie-Backendkurs/project.Videoflix)
+Frontend Repository: [Videoflix/ Frontend Project](https://github.com/Developer-Akademie-Backendkurs/project.Videoflix)
 
 This repository contains everything needed to start the backend using **Docker**, including configuration for PostgreSQL and Redis.
 
