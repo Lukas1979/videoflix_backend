@@ -393,7 +393,7 @@ class PasswordConfirmViewTests(APITestCase):
         """POST missing new_password or confirm_password → 400"""
 
         url = f"{self.base_url}{self.uidb64}/{self.valid_token}/"
-        payload = {"new_password": "Pass1234"}  # confirm fehlt
+        payload = {"new_password": "Pass1234"}
 
         response = self.client.post(url, payload, format="json")
 

@@ -1,5 +1,6 @@
-import os, shutil
+import os, shutil, tempfile
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -7,7 +8,8 @@ from django.http import StreamingHttpResponse, FileResponse
 from django.urls import reverse
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.test import APITestCase
+from rest_framework.test import APITestCase, override_settings
+from unittest.mock import patch
 
 from video_app.api.serializers import VideoSerializer
 from video_app.models import Video
@@ -15,12 +17,19 @@ from video_app.models import Video
 User = get_user_model()
 
 
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp())
 class VideoViewTests(APITestCase):
     """
     Test suite for /api/video/ endpoint with JWT cookie authentication.
     """
 
     @classmethod
+    def tearDownClass(cls):
+        super().tearDownClass()
+        shutil.rmtree(settings.MEDIA_ROOT, ignore_errors=True)
+
+    @classmethod
+    @patch("video_app.signals.convert_video_hls.delay", lambda x: None)
     def setUpTestData(cls):
         cls.user = User.objects.create_user(username="test@example.com", password="Pass123!", email="test@example.com")
         cls.url = reverse("video")
@@ -63,6 +72,7 @@ class VideoViewTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertIn("detail", response.data)
 
+    @patch("video_app.signals.convert_video_hls.delay", lambda x: None)
     def test_cache_is_cleared_after_new_video_created(self):
         """The cache is automatically cleared when a new video is created."""
         
@@ -88,12 +98,19 @@ class VideoViewTests(APITestCase):
         self.assertEqual(titles[1], "Video A")
 
 
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp())
 class VideoHLSViewTests(APITestCase):
     """
     Test suite for /api/video/<movie_id>/<resolution>/index.m3u8 endpoint with JWT cookie authentication and caching.
     """
 
     @classmethod
+    def tearDownClass(cls):
+        super().tearDownClass()
+        shutil.rmtree(settings.MEDIA_ROOT, ignore_errors=True)
+
+    @classmethod
+    @patch("video_app.signals.convert_video_hls.delay", lambda x: None)
     def setUpTestData(cls):
         cls.user = User.objects.create_user(username="hlsuser@example.com", password="Pass123!", email="hlsuser@example.com")
     
@@ -129,6 +146,7 @@ class VideoHLSViewTests(APITestCase):
         """GET without Login → 401"""
 
         response = self.client.get(self.url)
+
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_returns_200_and_playlist_content_when_authenticated(self):
@@ -146,7 +164,7 @@ class VideoHLSViewTests(APITestCase):
 
         self.authenticate_with_cookies()
 
-        bad_url = reverse("video_hls", args=[self.video.id, "1080p"])  # nicht vorhandene Auflösung
+        bad_url = reverse("video_hls", args=[self.video.id, "1080p"])
         response = self.client.get(bad_url)
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
@@ -182,12 +200,19 @@ class VideoHLSViewTests(APITestCase):
         self.assertIn("fileSequence1.ts", data)
 
 
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp())
 class VideoHLSSegmentViewTests(APITestCase):
     """
     Test suite for /api/video/<id>/<resolution>/<segment>/ endpoint with JWT cookie authentication and caching.
     """
 
     @classmethod
+    def tearDownClass(cls):
+        super().tearDownClass()
+        shutil.rmtree(settings.MEDIA_ROOT, ignore_errors=True)
+
+    @classmethod
+    @patch("video_app.signals.convert_video_hls.delay", lambda x: None)
     def setUpTestData(cls):
         cls.user = User.objects.create_user(username="segmentuser@example.com", password="Pass123!", email="segmentuser@example.com")
 
@@ -267,12 +292,5 @@ class VideoHLSSegmentViewTests(APITestCase):
         """Request without JWT cookies → 401"""
 
         response = self.client.get(self.url)
+        
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-
-    @classmethod
-    def tearDownClass(cls):
-        """Clean up files after test"""
-
-        if os.path.exists(cls.base_dir):
-            shutil.rmtree(cls.base_dir)
-        super().tearDownClass()
