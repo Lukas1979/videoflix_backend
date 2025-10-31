@@ -12,6 +12,11 @@ from video_app.models import Video
 from .serializers import VideoSerializer
 
 
+VIDEO_LIST_CACHE_TIMEOUT = 60 * 60        # 1 hour
+HLS_PLAYLIST_CACHE_TIMEOUT = 6 * 60 * 60  # 6 hours
+HLS_SEGMENT_CACHE_TIMEOUT = 12 * 60 * 60  # 12 hours
+
+
 class VideoView(ListAPIView):
     """
     GET /api/video/
@@ -33,7 +38,7 @@ class VideoView(ListAPIView):
         serializer = self.get_serializer(queryset, many=True)
         data = serializer.data
 
-        cache.set(cache_key, data, timeout=60)
+        cache.set(cache_key, data, timeout=VIDEO_LIST_CACHE_TIMEOUT)
         return Response(data)
 
 
@@ -61,7 +66,7 @@ class VideoHLSView(APIView):
         with open(playlist_path, "r") as f:
             data = f.read()
 
-        cache.set(cache_key, data, timeout=60 * 5)
+        cache.set(cache_key, data, timeout=HLS_PLAYLIST_CACHE_TIMEOUT)
 
         return StreamingHttpResponse(data, content_type="application/vnd.apple.mpegurl")
 
@@ -90,6 +95,6 @@ class VideoHLSSegmentView(APIView):
         with open(segment_path, "rb") as f:
             data = f.read()
     
-        cache.set(cache_key, data, timeout=60*5)
+        cache.set(cache_key, data, timeout=HLS_SEGMENT_CACHE_TIMEOUT)
     
         return FileResponse(io.BytesIO(data), content_type="video/MP2T", filename=segment)

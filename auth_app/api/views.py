@@ -76,12 +76,12 @@ class ActivateAccountView(APIView):
         return self._activation_process(user, token)
 
     def _activation_process(self, user, token):
+        if user.is_active:
+            return Response({"message": "Account is already active."}, status=status.HTTP_200_OK)
+        
         token_generator = AccountActivationTokenGenerator()
         if not token_generator.check_token(user, token):
             return Response({"error": "Activation failed."}, status=status.HTTP_400_BAD_REQUEST)
-
-        if user.is_active:
-            return Response({"message": "Account is already active."}, status=status.HTTP_200_OK)
 
         user.is_active = True
         user.save()

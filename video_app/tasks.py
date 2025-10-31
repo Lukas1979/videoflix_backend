@@ -1,5 +1,4 @@
-import os
-import subprocess
+import os, subprocess
 
 from django_rq import job
 

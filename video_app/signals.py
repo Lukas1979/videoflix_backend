@@ -17,6 +17,8 @@ def video_post_save(sender, instance, created, **kwargs):
     print(f"🎥 New Video: {instance.video_file.path}")
     convert_video_hls.delay(instance.id)
 
+    clear_cache(instance)
+
 
 @receiver(post_delete, sender=Video)
 def delete_files(sender, instance, **kwargs):
@@ -32,6 +34,8 @@ def delete_files(sender, instance, **kwargs):
     
     if hasattr(instance, 'base_dir') and os.path.exists(instance.base_dir):
         shutil.rmtree(instance.base_dir)
+
+    clear_cache(instance)
 
 
 @receiver(pre_save, sender=Video)
@@ -62,12 +66,12 @@ def _delete_video_hls_thumbnail(old_instance, instance):
         old_instance.thumbnail.delete(save=False)
 
 
-@receiver([post_save, post_delete], sender=Video)
-def clear_video_cache(sender, instance, **kwargs):
+def clear_cache(instance):
     """
-    Clears the cache of VideoView, VideoHLSView, and VideoHLSSegmentView when a video is created, updated, or deleted.
+    Clear cache for VideoView, VideoHLSView and VideoHLSSegmentView.
     """
-
+    
+    print('✅ Cache cleared.')
     cache.delete("video_list")
 
     video_id = instance.id
