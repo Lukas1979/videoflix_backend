@@ -1,15 +1,15 @@
 import os
-
 from contextlib import suppress
+
 from django.contrib.auth import get_user_model, authenticate
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 from rest_framework_simplejwt.views import TokenRefreshView
-from rest_framework.views import APIView
 
 from auth_app.utils import send_activation_email
 from .serializers import RegistrationSerializer

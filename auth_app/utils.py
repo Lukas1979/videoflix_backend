@@ -1,6 +1,7 @@
-from django.core.mail import send_mail, EmailMultiAlternatives
-from django.template.loader import render_to_string
 from email.mime.image import MIMEImage
+
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
 
 
 ACTIVATION_EMAIL = {
@@ -15,7 +16,7 @@ RESET_PASSWORD_EMAIL = {
 
 def send_activation_email(user_email, user_name, activation_link, email_type):
     """
-    After successful registration, a confirmation email will be sent to the user.
+    Two types of emails can be sent: activation email or password reset email.
     """
     
     email_cfg = {"ACTIVATION_EMAIL": ACTIVATION_EMAIL, "RESET_PASSWORD_EMAIL": RESET_PASSWORD_EMAIL}.get(email_type)

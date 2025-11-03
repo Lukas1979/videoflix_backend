@@ -1,13 +1,13 @@
 import os
+from unittest.mock import patch
 
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 from rest_framework import status
-from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 from rest_framework.test import APITestCase
-from unittest.mock import patch
+from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 
 from .api.token_generators import AccountActivationTokenGenerator, PasswordResetTokenGenerator
 

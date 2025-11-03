@@ -1,4 +1,5 @@
 import os, shutil, tempfile
+from unittest.mock import patch
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -7,9 +8,8 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.http import StreamingHttpResponse, FileResponse
 from django.urls import reverse
 from rest_framework import status
-from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.test import APITestCase, override_settings
-from unittest.mock import patch
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from video_app.api.serializers import VideoSerializer
 from video_app.models import Video
@@ -49,6 +49,14 @@ class VideoViewTests(APITestCase):
     def authenticate_with_cookies(self):
         self.client.cookies["access_token"] = self.access_token
         self.client.cookies["refresh_token"] = self.refresh_token
+
+    def test_video_list_unauthenticated_returns_401(self):
+        """GET /api/video/ without authentication → 401 Unauthorized"""
+    
+        response = self.client.get(self.url)
+    
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertIn("detail", response.data)
     
     def test_video_list_returns_200_and_data(self):
         """GET /api/video/ → 200 OK + contains all videos"""
@@ -64,14 +72,6 @@ class VideoViewTests(APITestCase):
         self.assertEqual(response.data, serializer.data)
         self.assertEqual(len(response.data), 2)
     
-    def test_video_list_unauthenticated_returns_401(self):
-        """GET /api/video/ without authentication → 401 Unauthorized"""
-    
-        response = self.client.get(self.url)
-    
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-        self.assertIn("detail", response.data)
-
     @patch("video_app.signals.convert_video_hls.delay", lambda x: None)
     def test_cache_is_cleared_after_new_video_created(self):
         """The cache is automatically cleared when a new video is created."""
@@ -245,6 +245,13 @@ class VideoHLSSegmentViewTests(APITestCase):
         self.client.cookies["access_token"] = self.access_token
         self.client.cookies["refresh_token"] = self.refresh_token
 
+    def test_returns_401_if_not_authenticated(self):
+        """Request without JWT cookies → 401"""
+
+        response = self.client.get(self.url)
+        
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
     def test_returns_200_and_correct_segment(self):
         """GET existing segment returns 200 and correct file"""
 
@@ -287,10 +294,3 @@ class VideoHLSSegmentViewTests(APITestCase):
         data_1 = b"".join(response_1.streaming_content)
         data_2 = b"".join(response_2.streaming_content)
         self.assertEqual(data_1, data_2)
-
-    def test_returns_401_if_not_authenticated(self):
-        """Request without JWT cookies → 401"""
-
-        response = self.client.get(self.url)
-        
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)

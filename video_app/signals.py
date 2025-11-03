@@ -58,6 +58,7 @@ def delete_old_files_on_update(sender, instance, **kwargs):
 def _delete_video_hls_thumbnail(old_instance, instance):
     if old_instance.video_file and old_instance.video_file != instance.video_file:
         old_instance.video_file.delete(save=False)
+        clear_cache(old_instance)
 
         if hasattr(old_instance, 'base_dir') and os.path.exists(old_instance.base_dir):
             shutil.rmtree(old_instance.base_dir)
