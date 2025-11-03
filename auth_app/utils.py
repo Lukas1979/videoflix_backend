@@ -1,5 +1,7 @@
+import os
 from email.mime.image import MIMEImage
 
+from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 
@@ -33,7 +35,7 @@ def send_activation_email(user_email, user_name, activation_link, email_type):
 
 def _send_email(msg, user_email):
     try:
-        with open("static/logo_icon.png", "rb") as f:
+        with open(os.path.join(settings.BASE_DIR, "static", "logo_icon.png"), "rb") as f:
             img = MIMEImage(f.read())
             img.add_header('Content-ID', '<logo>')
             img.add_header('Content-Disposition', 'inline', filename="logo.png")
